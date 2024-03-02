@@ -1,10 +1,11 @@
 import { useState, useEffect, useRef, useContext } from 'react'
-import { Spawn } from './Auxiliary.tsx'
-import { Context } from "./App.tsx"
+import { Spawn, graphStep } from '../Auxiliary.tsx'
+import { Context } from "../App.tsx"
+import { velocityManeger, graphicalManager } from './kinematics.tsx'
 import { motion, AnimatePresence } from "framer-motion"
-import explodeImg from './assets/explode_128.png'
+import explodeImg from '../assets/explode_128.png'
 
-interface Kinematics {
+export interface Kinematics {
   x: number
   y: number
   z: number
@@ -29,43 +30,16 @@ export default function PhysicsObj({width, spawn, setSpawns, indexSpawn}:PhysicP
   const [dimension, setdimension] = useState<{width: number, height: number}>({width: 1, height: 1})
 
   // adjust plane graphically to accurately represent its position
-  useEffect(() => {
-    if (graphObj.current) {
-      setdimension({...dimension, width: graphObj.current.clientHeight, height: graphObj.current.clientWidth}) 
-    }
+  graphicalManager(graphObj, dimension, setdimension, setGraphicalPosition, spawn)
 
-    setGraphicalPosition({...graphicalPosition, x: spawn.position.x - dimension.width/2, y: spawn.position.y - dimension.height/2})
-
-    // remove the colided spawn
-  }, [contextApp.masterWidth, contextApp.masterHeight, spawn.position])
-
-  // update the position due to velocity every 100 ms
-  useEffect(() => {
-    // update its positions
-    setSpawns( (prevSpawns: Spawn[]) => {
-        let newSpawns:Spawn[] = [...prevSpawns]
-        newSpawns[indexSpawn] = {
-            ...spawn,
-            position: {x: spawn.velocity.x/10 + spawn.position.x, y: spawn.velocity.y/10 + spawn.position.y, z:0},
-            height: dimension.height,
-            width: dimension.width
-        }
-        return newSpawns
-    })
-
-    // get the angle towards motion
-    setRotate(90 - Math.atan2(spawn.velocity.y, spawn.velocity.x) * 57.2958)
-  },[contextApp.graphTime])
-
-  useEffect(() => {
-    contextApp.setPlaneTrajectory({...contextApp.planeTrajectory, ...spawn.position, ...dimension})
-  }, [spawn.position, dimension])
+  // update the position due to velocity
+  velocityManeger(spawn, dimension, setSpawns, indexSpawn, setRotate)
 
   if (!spawn.exploded) {
     return (
       <motion.div 
         className="absolute z-10"
-        style={{bottom: spawn.position.y, left: spawn.position.x}}
+        style={{bottom: graphicalPosition.y, left: graphicalPosition.x}}
         ref={ graphObj }
         animate={{ rotate }}
       >
@@ -77,7 +51,7 @@ export default function PhysicsObj({width, spawn, setSpawns, indexSpawn}:PhysicP
      <AnimatePresence>
        <motion.div 
          className="absolute z-10"
-         style={{bottom: spawn.position.y, left: spawn.position.x}} 
+         style={{bottom: graphicalPosition.y, left: graphicalPosition.x}} 
          ref={graphObj} 
          initial={{ opacity: 1 }}
          animate={{ opacity: 0 }}
@@ -90,4 +64,3 @@ export default function PhysicsObj({width, spawn, setSpawns, indexSpawn}:PhysicP
    )
  }
 }
-

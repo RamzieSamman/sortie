@@ -12,6 +12,8 @@ export type Trajectory = {
   type: string
 }
 
+export const graphStep = 100
+
 export interface Spawn {
   asset: string,
   position: {x:number, y:number, z:number},
@@ -26,8 +28,8 @@ export const spawnHandler = (spawns:Spawn[], setSpawns:(a:Spawn[]) => void, upda
     // create two physics objects
     setSpawns([
         ...spawns,
-        {exploded: false, asset: jetPlane, position: {x: 25, y: 1, z: 10}, velocity: {x: 5, y: 0, z: 0}, width: 0, height: 0},
-        {exploded: false, asset: missile, position: {x: 100, y: 1, z: 10}, velocity:{x: -5, y: 0, z: 0}, width: 0, height: 0}
+        {exploded: false, asset: jetPlane, position: {x: 100, y: 100, z: 10}, velocity: {x: 5, y: 0, z: 0}, width: 0, height: 0},
+        {exploded: false, asset: missile, position: {x: 250, y: 100, z: 10}, velocity:{x: -5, y: 0, z: 0}, width: 0, height: 0}
       ]
     )
   }, [updateSpawns])
@@ -68,7 +70,7 @@ export const graphTimer = ():number => {
     const timer = setTimeout(() => {
       // increment graphTimer
       setGraphTime(graphTime + 1)
-    }, 100);
+    }, graphStep);
 
     // clean up
     return () => clearTimeout(timer)

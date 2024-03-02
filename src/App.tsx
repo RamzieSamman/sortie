@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import africaMap from './assets/map_africa.png'
 import { collisionHandler } from './collider.tsx'
 import {graphTimer, mapHandler, Trajectory, Spawn, spawnHandler} from './Auxiliary.tsx'
-import PhysicsObj from './PhysicsObj.tsx'
+import PhysicsObj from './physicsObj/PhysicsObj.tsx'
 
 interface ContextProvider {
   masterWidth: number,
@@ -55,7 +55,7 @@ function App() {
             <PhysicsObj
             key={index}
             width={75}
-            spawn={spawn} setSpawns={setSpawns}
+            spawn={spawn} spawns={spawns} setSpawns={setSpawns}
             indexSpawn={index}
             />
           ))}
