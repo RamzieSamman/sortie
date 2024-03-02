@@ -57,7 +57,6 @@ export default function PhysicsObj({width, spawn, setSpawns, indexSpawn}:PhysicP
     setRotate(90 - Math.atan2(spawn.velocity.y, spawn.velocity.x) * 57.2958)
   },[contextApp.graphTime])
 
-
   useEffect(() => {
     contextApp.setPlaneTrajectory({...contextApp.planeTrajectory, ...spawn.position, ...dimension})
   }, [spawn.position, dimension])

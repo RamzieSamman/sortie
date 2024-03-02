@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
+import jetPlane from './assets/jet-plane.png'
+import missile from './assets/missile.png'
 
 export type Trajectory = {
   x: number,
@@ -17,6 +19,18 @@ export interface Spawn {
   exploded: boolean,
   width: number,
   height: number
+}
+
+export const spawnHandler = (spawns:Spawn[], setSpawns:(a:Spawn[]) => void, updateSpawns: number):void => {
+  useEffect( () => {
+    // create two physics objects
+    setSpawns([
+        ...spawns,
+        {exploded: false, asset: jetPlane, position: {x: 25, y: 1, z: 10}, velocity: {x: 5, y: 0, z: 0}, width: 0, height: 0},
+        {exploded: false, asset: missile, position: {x: 100, y: 1, z: 10}, velocity:{x: -5, y: 0, z: 0}, width: 0, height: 0}
+      ]
+    )
+  }, [updateSpawns])
 }
 
 export const mapHandler = (map_y:any):number[] => {
