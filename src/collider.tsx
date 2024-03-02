@@ -12,7 +12,9 @@ function determine_collision(phys_obj_1: Spawn, phys_obj_2: Spawn):boolean {
   return false
 }
 
-export default function collider(physicObjs: Spawn[], setPhysicObjs: (a:Spawn[]) => void) {
+export default function collider(physicObjs: Spawn[], setPhysicObjs: (a:Spawn[]) => void):number[] {
+  let collisionOccured:number[] = []
+
   // determine what objects are colliding
   physicObjs.forEach( (firstPhysicObj:Spawn, i) => {
     physicObjs.forEach( (secondPhysicObj:Spawn, k) => {
@@ -23,8 +25,10 @@ export default function collider(physicObjs: Spawn[], setPhysicObjs: (a:Spawn[])
             newPhysicObjs[k] = {...firstPhysicObj, exploded: true}
             return newPhysicObjs
           })
+          collisionOccured.push(k)
         }
       }
     })    
   })
+  return collisionOccured
 }

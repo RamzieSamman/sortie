@@ -4,21 +4,20 @@ import { Context } from "./App.tsx"
 import { motion, AnimatePresence } from "framer-motion"
 import explodeImg from './assets/explode_128.png'
 
-
 interface Kinematics {
   x: number
   y: number
   z: number
 }
 
-type MissileProps = {
+type PhysicProps = {
   width: number,
   spawn: Spawn,
   setSpawns: (a:any) => void,
   indexSpawn: number
 }
 
-export default function PhysicsObj({width, spawn, setSpawns, indexSpawn}:MissileProps) {
+export default function PhysicsObj({width, spawn, setSpawns, indexSpawn}:PhysicProps) {
   // import variables fromt he App.tsx
   const contextApp = useContext(Context)
 
@@ -38,13 +37,11 @@ export default function PhysicsObj({width, spawn, setSpawns, indexSpawn}:Missile
     setGraphicalPosition({...graphicalPosition, x: spawn.position.x - dimension.width/2, y: spawn.position.y - dimension.height/2})
 
     // remove the colided spawn
-    //setSpawns( (spawns) => (spawns.slice(indexSpawn, indexSpawn)))
   }, [contextApp.masterWidth, contextApp.masterHeight, spawn.position])
 
   // update the position due to velocity every 100 ms
   useEffect(() => {
     // update its positions
-
     setSpawns( (prevSpawns: Spawn[]) => {
         let newSpawns:Spawn[] = [...prevSpawns]
         newSpawns[indexSpawn] = {
@@ -59,6 +56,7 @@ export default function PhysicsObj({width, spawn, setSpawns, indexSpawn}:Missile
     // get the angle towards motion
     setRotate(90 - Math.atan2(spawn.velocity.y, spawn.velocity.x) * 57.2958)
   },[contextApp.graphTime])
+
 
   useEffect(() => {
     contextApp.setPlaneTrajectory({...contextApp.planeTrajectory, ...spawn.position, ...dimension})

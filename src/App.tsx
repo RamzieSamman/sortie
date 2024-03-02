@@ -47,7 +47,19 @@ function App() {
 
   // determine if collision occured and update states
   useEffect(() => {
-    collision(spawns, setSpawns)
+    // determine if a collision occured and update the spawn to render an explosion
+    let collisionOccured:number[] = collision(spawns, setSpawns)
+
+    // if collision occured remove the object after a short delay
+    if (collisionOccured.length >= 1) {
+      collisionOccured.forEach( (index) => {
+        // if it has exploded, wait a while until removing the object
+        setTimeout(() => {
+          // remove the object now
+          setSpawns( (spawns) => (spawns.slice(index, index)))
+        }, 8000)
+      })
+    }
   }, [graphTime])
 
   return (
