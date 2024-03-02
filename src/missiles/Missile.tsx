@@ -1,27 +1,43 @@
 import { useState, useEffect, useRef } from 'react'
-import missile from './assets/missile.png'
-import explode from './assets/explode_128.png'
+import missile from '../assets/missile.png'
+import explode from '../assets/explode_128.png'
 import { useContext } from 'react';
-import { Context } from "./App.tsx"
+import { Context } from "../App.tsx"
 import { motion, AnimatePresence } from "framer-motion"
 
-export default function Missile( { width, exploded} ) {
-  const [masterWidth, masterHeight, resolution, setMissileTrajectory, setPlaneTrajectory, graphTime, missileTrajectory, planeTrajectory] = useContext(Context);
+type MissileProps = {
+  width: number,
+  exploded: boolean
+}
 
-  const [position, setPosition] = useState({x: 100, y: 1, z: 10})
-  const [graphicalPosition, setGraphicalPosition] = useState({x: position.x, y: position.y, z: position.z})
-  const [velocity, setVelocity] = useState({x: -5, y: 0, z: 0})
-  const [rotate, setRotate] = useState(0)
+interface Kinematics {
+  x: number
+  y: number
+  z: number
+}
+interface ObjDimension{
+  width: number
+  height: number
+}
+export default function Missile( { width, exploded}:MissileProps ) {
+  const contextApp = useContext(Context)
 
-  const missileObj = useRef(null)
+  const [position, setPosition] = useState<Kinematics>({x: 100, y: 1, z: 10})
+  const [graphicalPosition, setGraphicalPosition] = useState<Kinematics>({x: position.x, y: position.y, z: position.z})
+  const [velocity, setVelocity] = useState<Kinematics>({x: -5, y: 0, z: 0})
+  const [rotate, setRotate] = useState<number>(0)
+
+  const missileObj = useRef<HTMLInputElement>(null)
   const [dimension, setDimension] = useState({width: 1, height: 1})
 
   // adjust plane graphically to accurately represent its position
   useEffect(() => {
-    setDimension({width: missileObj.current.clientHeight, height: missileObj.current.clientWidth}) 
+    if (missileObj.current) {
+      setDimension({width: missileObj.current.clientHeight, height: missileObj.current.clientWidth}) 
+    }
 
     setGraphicalPosition({...graphicalPosition, x: position.x - dimension.width/2, y: position.y - dimension.height/2})
-  }, [masterWidth, masterHeight, position])
+  }, [contextApp.masterWidth, contextApp.masterHeight, position])
 
   // update the position due to velocity every 100 ms
   useEffect(() => {
@@ -30,10 +46,10 @@ export default function Missile( { width, exploded} ) {
 
     // get the angle towards motion
     setRotate(90 - Math.atan2(velocity.y, velocity.x) * 57.2958)
-  },[graphTime])
+  },[contextApp.graphTime])
 
   useEffect(() => {
-    setMissileTrajectory({...missileTrajectory, ...position, ...dimension})
+    contextApp.setMissileTrajectory({...contextApp.missileTrajectory, ...position, ...dimension})
   }, [position, dimension])
 
   if (!exploded) {
@@ -44,12 +60,11 @@ export default function Missile( { width, exploded} ) {
           style={{bottom: position.y, left: position.x}} 
           ref={missileObj} 
           animate={{ rotate }}>
-            <img src={missile} width={4*masterWidth/width}/>
+            <img src={missile} width={4*contextApp.masterWidth/width}/>
         </motion.div>
       </>
     )
-  }
-  if (exploded) {
+  } else {
     return (
       <AnimatePresence>
         <motion.div 
@@ -61,7 +76,7 @@ export default function Missile( { width, exploded} ) {
           exit={{ opacity: 0}}
           transition={{ duration: 1 }}
           >
-            <img src={explode} width={4*masterWidth/width}/>
+            <img src={explode} width={4*contextApp.masterWidth/width}/>
         </motion.div>
       </AnimatePresence>
     )
