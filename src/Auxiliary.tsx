@@ -10,6 +10,15 @@ export type Trajectory = {
   type: string
 }
 
+export interface Spawn {
+  asset: string,
+  position: {x:number, y:number, z:number},
+  velocity: {x:number, y:number, z:number},
+  exploded: boolean,
+  width: number,
+  height: number
+}
+
 export const mapHandler = (map_y:any):number[] => {
   const [masterWidth, setMasterWidth] = useState<number>(window.innerWidth)
   const [masterHeight, setMasterHeight] = useState<number>(0)
