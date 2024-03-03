@@ -3,6 +3,7 @@ import { Spawn, graphStep } from '../Auxiliary.tsx'
 import { Context } from "../App.tsx"
 import { velocityManeger, graphicalManager } from './kinematics.tsx'
 import { motion, AnimatePresence } from "framer-motion"
+import { displayKinematics } from './Interaction.tsx'
 import explodeImg from '../assets/explode_128.png'
 
 export interface Kinematics {
@@ -15,10 +16,12 @@ type PhysicProps = {
   width: number,
   spawn: Spawn,
   setSpawns: (a:any) => void,
-  indexSpawn: number
+  indexSpawn: number,
+  mapWidth: number,
+  mapHeight: number
 }
 
-export default function PhysicsObj({width, spawn, setSpawns, indexSpawn}:PhysicProps) {
+export default function PhysicsObj({width, spawn, setSpawns, indexSpawn, mapWidth, mapHeight}:PhysicProps) {
   // import variables fromt he App.tsx
   const contextApp = useContext(Context)
 
@@ -31,35 +34,19 @@ export default function PhysicsObj({width, spawn, setSpawns, indexSpawn}:PhysicP
   const [toggleDetail, setToggleDetail] = useState<boolean>(false)
 
   // adjust plane graphically to accurately represent its position
-  graphicalManager(graphObj, dimension, setdimension, setGraphicalPosition, spawn)
+  graphicalManager(graphObj, dimension, setdimension, setGraphicalPosition, spawn, mapWidth, mapHeight)
 
   // update the position due to velocity
   velocityManeger(spawn, dimension, setSpawns, indexSpawn, setRotate)
 
-  // if object is selected
-  useEffect(() => {
-    const handleClick = (event:any):void => {
-      if (graphObj.current && graphObj.current.contains(event.target)) {
-        setToggleDetail( toggleDetail => !toggleDetail)
-        // The click was inside the component
-      } else {
-        setToggleDetail(false)
-        // The click was outside the component
-      }
-    };
-
-    document.addEventListener("click", handleClick);
-
-    return () => {
-      document.removeEventListener("click", handleClick);
-    };
-  }, [graphObj]);
+  // display kinematics for physics property on click
+  displayKinematics(graphObj, setToggleDetail)
 
   if (!spawn.exploded) {
     return (
       <div
         className={"absolute z-10 flex flex-row"}
-        style={{bottom: graphicalPosition.y-4, left: graphicalPosition.x-4}}
+        style={{bottom: graphicalPosition.y + '%', left: graphicalPosition.x + '%'}}
       >
         <div className={"p-2 border-2 border-solid " + (toggleDetail ? ("border-zinc-600"):("border-transparent"))}>
           <motion.div ref={ graphObj } animate={{ rotate }}>
@@ -84,7 +71,7 @@ export default function PhysicsObj({width, spawn, setSpawns, indexSpawn}:PhysicP
      <AnimatePresence>
        <motion.div 
          className="absolute z-10"
-         style={{bottom: graphicalPosition.y, left: graphicalPosition.x}} 
+         style={{bottom: graphicalPosition.y + '%', left: graphicalPosition.x + '%'}} 
          ref={graphObj} 
          initial={{ opacity: 1 }}
          animate={{ opacity: 0 }}

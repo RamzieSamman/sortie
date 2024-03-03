@@ -25,7 +25,7 @@ function App() {
   spawnHandler(spawns, setSpawns, updateSpawns)
 
   // determine if collision occured and update states
-  collisionHandler(spawns, setSpawns, graphTime)
+  collisionHandler(spawns, setSpawns, graphTime, masterWidth, masterHeight)
 
   return (
     <Context.Provider value={{masterWidth, masterHeight, graphTime}}>
@@ -37,6 +37,7 @@ function App() {
             width={75}
             spawn={spawn} setSpawns={setSpawns}
             indexSpawn={index}
+            mapWidth={masterWidth} mapHeight={masterHeight}
             />
           ))}
           <img src={africaMap} className="scale-150"/>

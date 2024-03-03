@@ -34,8 +34,8 @@ export const spawnHandler = (spawns:Spawn[], setSpawns:(a:Spawn[]) => void, upda
     // create two physics objects
     setSpawns([
         ...spawns,
-        {exploded: false, asset: jetPlane, position: {x: 100, y: 100, z: 10}, velocity: {x: 5, y: 0, z: 0}, width: 0, height: 0},
-        {exploded: false, asset: missile, position: {x: 250, y: 100, z: 10}, velocity:{x: -5, y: 0, z: 0}, width: 0, height: 0}
+        {exploded: false, asset: jetPlane, position: {x: 70, y: 50, z: 10}, velocity: {x: -1, y: 0, z: 0}, width: 0, height: 0},
+        {exploded: false, asset: missile, position: {x: 50, y: 50, z: 10}, velocity:{x: 1, y: 0, z: 0}, width: 0, height: 0}
       ]
     )
   }, [updateSpawns])
