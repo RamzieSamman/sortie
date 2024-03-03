@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useContext } from 'react'
+import { useState, useEffect, useRef, useContext, SyntheticEvent } from 'react'
 import { Spawn, graphStep } from '../Auxiliary.tsx'
 import { Context } from "../App.tsx"
 import { velocityManeger, graphicalManager } from './kinematics.tsx'
@@ -28,6 +28,7 @@ export default function PhysicsObj({width, spawn, setSpawns, indexSpawn}:PhysicP
 
   const graphObj = useRef<HTMLInputElement>(null)
   const [dimension, setdimension] = useState<{width: number, height: number}>({width: 1, height: 1})
+  const [toggleDetail, setToggleDetail] = useState<boolean>(false)
 
   // adjust plane graphically to accurately represent its position
   graphicalManager(graphObj, dimension, setdimension, setGraphicalPosition, spawn)
@@ -35,16 +36,48 @@ export default function PhysicsObj({width, spawn, setSpawns, indexSpawn}:PhysicP
   // update the position due to velocity
   velocityManeger(spawn, dimension, setSpawns, indexSpawn, setRotate)
 
+  // if object is selected
+  useEffect(() => {
+    const handleClick = (event:any):void => {
+      if (graphObj.current && graphObj.current.contains(event.target)) {
+        setToggleDetail( toggleDetail => !toggleDetail)
+        // The click was inside the component
+      } else {
+        setToggleDetail(false)
+        // The click was outside the component
+      }
+    };
+
+    document.addEventListener("click", handleClick);
+
+    return () => {
+      document.removeEventListener("click", handleClick);
+    };
+  }, [graphObj]);
+
   if (!spawn.exploded) {
     return (
-      <motion.div 
-        className="absolute z-10"
-        style={{bottom: graphicalPosition.y, left: graphicalPosition.x}}
-        ref={ graphObj }
-        animate={{ rotate }}
+      <div
+        className={"absolute z-10 flex flex-row"}
+        style={{bottom: graphicalPosition.y-4, left: graphicalPosition.x-4}}
       >
-          <img src={spawn.asset} width={4*contextApp.masterWidth/width}/>
-      </motion.div>
+        <div className={"p-2 border-2 border-solid " + (toggleDetail ? ("border-zinc-600"):("border-transparent"))}>
+          <motion.div ref={ graphObj } animate={{ rotate }}>
+              <img src={spawn.asset} width={4*contextApp.masterWidth/width}/>
+          </motion.div>
+        </div>
+      
+        <div className='text-xs ml-1'>
+          {toggleDetail ? (
+            'v = ' + Math.sqrt(Math.pow(spawn.velocity.x, 2) + Math.pow(spawn.velocity.y, 2) + Math.pow(spawn.velocity.z, 2)) + ' m/s') : ('')}
+          <br/>
+          {toggleDetail ? ('x = ' + spawn.position.x.toFixed() + ' m') : ('')}
+          <br/>
+          {toggleDetail ? ('y = ' + spawn.position.y.toFixed() + ' m') : ('')}
+          <br/>
+          {toggleDetail ? ('z = ' + spawn.position.z.toFixed() + ' m') : ('')}
+        </div>
+      </div>
     )
   } else {
    return (

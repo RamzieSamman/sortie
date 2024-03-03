@@ -23,6 +23,12 @@ export interface Spawn {
   height: number
 }
 
+export interface ContextProvider {
+  masterWidth: number,
+  masterHeight: number,
+  graphTime: number,
+}
+
 export const spawnHandler = (spawns:Spawn[], setSpawns:(a:Spawn[]) => void, updateSpawns: number):void => {
   useEffect( () => {
     // create two physics objects
