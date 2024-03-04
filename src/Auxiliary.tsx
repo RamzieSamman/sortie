@@ -27,6 +27,8 @@ export interface ContextProvider {
   masterWidth: number,
   masterHeight: number,
   graphTime: number,
+  begin: boolean,
+  spawns: Spawn[]
 }
 
 export const spawnHandler = (spawns:Spawn[], setSpawns:(a:Spawn[]) => void, updateSpawns: number):void => {

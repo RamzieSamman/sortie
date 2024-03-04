@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useContext, SyntheticEvent } from 'react'
 import { Spawn, graphStep } from '../Auxiliary.tsx'
+import { placementManeger } from './GraphEditor.tsx'
 import { Context } from "../App.tsx"
 import { velocityManeger, graphicalManager } from './kinematics.tsx'
 import { motion, AnimatePresence } from "framer-motion"
@@ -18,10 +19,11 @@ type PhysicProps = {
   setSpawns: (a:any) => void,
   indexSpawn: number,
   mapWidth: number,
-  mapHeight: number
+  mapHeight: number,
+  begin: boolean
 }
 
-export default function PhysicsObj({width, spawn, setSpawns, indexSpawn, mapWidth, mapHeight}:PhysicProps) {
+export default function PhysicsObj({width, spawn, setSpawns, indexSpawn, mapWidth, mapHeight, begin}:PhysicProps) {
   // import variables fromt he App.tsx
   const contextApp = useContext(Context)
 
@@ -35,12 +37,12 @@ export default function PhysicsObj({width, spawn, setSpawns, indexSpawn, mapWidt
 
   // adjust plane graphically to accurately represent its position
   graphicalManager(graphObj, dimension, setdimension, setGraphicalPosition, spawn, mapWidth, mapHeight)
-
   // update the position due to velocity
-  velocityManeger(spawn, dimension, setSpawns, indexSpawn, setRotate)
-
+  velocityManeger(begin, spawn, dimension, setSpawns, indexSpawn, setRotate)
   // display kinematics for physics property on click
-  displayKinematics(graphObj, setToggleDetail)
+  displayKinematics(begin, graphObj, setToggleDetail)
+  // upon selection of the asset, allow the user to rotate it with the scroll wheel
+  placementManeger(!begin, graphObj, toggleDetail, setToggleDetail, setRotate, rotate, indexSpawn, setSpawns, contextApp.spawns)
 
   if (!spawn.exploded) {
     return (
@@ -49,9 +51,9 @@ export default function PhysicsObj({width, spawn, setSpawns, indexSpawn, mapWidt
         style={{bottom: graphicalPosition.y + '%', left: graphicalPosition.x + '%'}}
       >
         <div className={"p-2 border-2 border-solid " + (toggleDetail ? ("border-zinc-600"):("border-transparent"))}>
-          <motion.div ref={ graphObj } animate={{ rotate }}>
+          <div ref={ graphObj } style={{transform: 'rotate(' + rotate + 'deg)'}} id={indexSpawn + '-asset'} >
               <img src={spawn.asset} width={4*contextApp.masterWidth/width}/>
-          </motion.div>
+          </div>
         </div>
       
         <div className='text-xs ml-1'>
