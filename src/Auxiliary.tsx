@@ -23,21 +23,16 @@ export interface Spawn {
   height: number
 }
 
-export interface ContextProvider {
-  masterWidth: number,
-  masterHeight: number,
-  graphTime: number,
-  begin: boolean,
-  spawns: Spawn[]
-}
-
 export const spawnHandler = (spawns:Spawn[], setSpawns:(a:Spawn[]) => void, updateSpawns: number):void => {
   useEffect( () => {
     // create two physics objects
     setSpawns([
         ...spawns,
-        {exploded: false, asset: jetPlane, position: {x: 70, y: 50, z: 10}, velocity: {x: -1, y: 0, z: 0}, width: 0, height: 0},
-        {exploded: false, asset: missile, position: {x: 50, y: 50, z: 10}, velocity:{x: 1, y: 0, z: 0}, width: 0, height: 0}
+        {exploded: false, asset: jetPlane, position: {x: 70, y: 50, z: 10}, velocity: {x: 1, y: 0, z: 0}, width: 0, height: 0},
+        {exploded: false, asset: missile, position: {x: 50, y: 50, z: 10}, velocity:{x: 1, y: 0, z: 0}, width: 0, height: 0},
+        {exploded: false, asset: missile, position: {x: 30, y: 30, z: 10}, velocity:{x: 1, y: 0, z: 0}, width: 0, height: 0},
+        {exploded: false, asset: missile, position: {x: 30, y: 50, z: 10}, velocity:{x: 1, y: 0, z: 0}, width: 0, height: 0},
+        {exploded: false, asset: missile, position: {x: 50, y: 30, z: 10}, velocity:{x: 1, y: 0, z: 0}, width: 0, height: 0}
       ]
     )
   }, [updateSpawns])

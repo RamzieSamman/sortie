@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef, useContext, SyntheticEvent } from 'react'
+import { useState, useEffect, useRef, useContext, SyntheticEvent, createContext } from 'react'
 import { Spawn, graphStep } from '../Auxiliary.tsx'
 import { placementManeger } from './GraphEditor.tsx'
 import { Context } from "../App.tsx"
 import { velocityManeger, graphicalManager } from './kinematics.tsx'
 import { motion, AnimatePresence } from "framer-motion"
-import { displayKinematics } from './Interaction.tsx'
+import { displayKinematics, launchMissile } from './Interaction.tsx'
 import explodeImg from '../assets/explode_128.png'
 
 export interface Kinematics {
@@ -16,73 +16,128 @@ export interface Kinematics {
 type PhysicProps = {
   width: number,
   spawn: Spawn,
-  setSpawns: (a:any) => void,
   indexSpawn: number,
-  mapWidth: number,
-  mapHeight: number,
-  begin: boolean
 }
 
-export default function PhysicsObj({width, spawn, setSpawns, indexSpawn, mapWidth, mapHeight, begin}:PhysicProps) {
+type PhysicObjType = {
+  width: number
+  spawn: Spawn
+  indexSpawn: number
+  graphicalPosition: Kinematics
+}
+
+export const physicObjContext = createContext<PhysicObjType>()
+
+export default function PhysicsObj({width, spawn, indexSpawn}:PhysicProps) {
   // import variables fromt he App.tsx
   const contextApp = useContext(Context)
 
   // set position for plane
   const [graphicalPosition, setGraphicalPosition] = useState<Kinematics>({x: spawn.position.x, y: spawn.position.y, z: spawn.position.z})
   const [rotate, setRotate] = useState<number>(0)
-
   const graphObj = useRef<HTMLInputElement>(null)
   const [dimension, setdimension] = useState<{width: number, height: number}>({width: 1, height: 1})
   const [toggleDetail, setToggleDetail] = useState<boolean>(false)
 
   // adjust plane graphically to accurately represent its position
-  graphicalManager(graphObj, dimension, setdimension, setGraphicalPosition, spawn, mapWidth, mapHeight)
-  // update the position due to velocity
-  velocityManeger(begin, spawn, dimension, setSpawns, indexSpawn, setRotate)
-  // display kinematics for physics property on click
-  displayKinematics(begin, graphObj, setToggleDetail)
-  // upon selection of the asset, allow the user to rotate it with the scroll wheel
-  placementManeger(!begin, graphObj, toggleDetail, setToggleDetail, setRotate, rotate, indexSpawn, setSpawns, contextApp.spawns)
+  graphicalManager(graphObj, dimension, setdimension, setGraphicalPosition, spawn, contextApp.masterWidth, contextApp.masterHeight)
 
-  if (!spawn.exploded) {
-    return (
-      <div
-        className={"absolute z-10 flex flex-row"}
-        style={{bottom: graphicalPosition.y + '%', left: graphicalPosition.x + '%'}}
-      >
-        <div className={"p-2 border-2 border-solid " + (toggleDetail ? ("border-zinc-600"):("border-transparent"))}>
-          <div ref={ graphObj } style={{transform: 'rotate(' + rotate + 'deg)'}} id={indexSpawn + '-asset'} >
-              <img src={spawn.asset} width={4*contextApp.masterWidth/width}/>
-          </div>
-        </div>
-      
-        <div className='text-xs ml-1'>
-          {toggleDetail ? (
-            'v = ' + Math.sqrt(Math.pow(spawn.velocity.x, 2) + Math.pow(spawn.velocity.y, 2) + Math.pow(spawn.velocity.z, 2)) + ' m/s') : ('')}
-          <br/>
-          {toggleDetail ? ('x = ' + spawn.position.x.toFixed() + ' m') : ('')}
-          <br/>
-          {toggleDetail ? ('y = ' + spawn.position.y.toFixed() + ' m') : ('')}
-          <br/>
-          {toggleDetail ? ('z = ' + spawn.position.z.toFixed() + ' m') : ('')}
+  // update the position due to velocity
+  velocityManeger(contextApp.begin, spawn, dimension, contextApp.setSpawns, indexSpawn, setRotate)
+
+  // display kinematics for physics property on click
+  displayKinematics(contextApp.begin, graphObj, setToggleDetail)
+
+  // upon selection of the asset, allow the user to rotate it with the scroll wheel
+  placementManeger(!contextApp.begin, graphObj, toggleDetail, setToggleDetail, setRotate, rotate, indexSpawn, contextApp.setSpawns, contextApp.spawns)
+
+  return (
+    <physicObjContext.Provider value={{ width, spawn, indexSpawn, graphicalPosition }}>
+      {spawn.exploded
+        ?
+          <Explosion graphicalPosition={graphicalPosition} width={width} delay={8000} />
+        :
+          <AssetFunctional toggleDetail={toggleDetail} graphObj={graphObj} rotate={rotate} />
+      }
+    </physicObjContext.Provider>
+  )
+}
+
+type IntactAsset = {
+  toggleDetail: boolean,
+  graphObj: any,
+  rotate: number
+}
+
+// non-exploded physics object
+function AssetFunctional({ toggleDetail, graphObj, rotate }:IntactAsset){
+
+  // import variables from App.tsx
+  const contextApp = useContext(Context)
+
+  // import physic object variables
+  const PhysicObjContext = useContext(physicObjContext)
+
+  return (
+    <div
+      className={"absolute z-10 flex flex-row"}
+      style={{bottom: PhysicObjContext.graphicalPosition.y + '%', left: PhysicObjContext.graphicalPosition.x + '%'}}>
+      <div className={"p-2 border-2 border-solid " + (toggleDetail ? ("border-zinc-600"):("border-transparent"))}>
+        <div ref={ graphObj } style={{transform: 'rotate(' + rotate + 'deg)'}} id={PhysicObjContext.indexSpawn + '-asset'} >
+            <img src={PhysicObjContext.spawn.asset} width={4*contextApp.masterWidth/PhysicObjContext.width}/>
         </div>
       </div>
-    )
-  } else {
-   return (
-     <AnimatePresence>
-       <motion.div 
-         className="absolute z-10"
-         style={{bottom: graphicalPosition.y + '%', left: graphicalPosition.x + '%'}} 
-         ref={graphObj} 
-         initial={{ opacity: 1 }}
-         animate={{ opacity: 0 }}
-         exit={{ opacity: 0}}
-         transition={{ duration: 8 }}
-        >
-          <img src={explodeImg} width={4*contextApp.masterWidth/width}/>
-       </motion.div>
-     </AnimatePresence>
-   )
- }
+    
+      <div className='text-xs ml-1'>
+        {toggleDetail ? (
+          'v = ' + Math.sqrt(Math.pow(PhysicObjContext.spawn.velocity.x, 2) + Math.pow(PhysicObjContext.spawn.velocity.y, 2) + Math.pow(PhysicObjContext.spawn.velocity.z, 2)) + ' m/s') : ('')}
+        <br/>
+        {toggleDetail ? ('x = ' + PhysicObjContext.spawn.position.x.toFixed() + ' m') : ('')}
+        <br/>
+        {toggleDetail ? ('y = ' + PhysicObjContext.spawn.position.y.toFixed() + ' m') : ('')}
+        <br/>
+        {toggleDetail ? ('z = ' + PhysicObjContext.spawn.position.z.toFixed() + ' m') : ('')}
+      </div>
+    </div>
+  )
+}
+
+type explosionProp = {
+  graphicalPosition: Kinematics
+  width: number
+  delay: number
+}
+
+// exploded physics object
+function Explosion({ graphicalPosition, width, delay }:explosionProp){
+  // import variables fromt he App.tsx
+  const contextApp = useContext(Context)
+  const [disappear, setDisappear] = useState<boolean>(false)
+
+  const graphObj = useRef<HTMLInputElement>(null)
+  const disapearid = setTimeout( () => {
+    setDisappear(true)
+    clearTimeout(disapearid)
+  }, delay)
+
+  return (
+    (!disappear
+      ?
+        <AnimatePresence>
+          <motion.div 
+            className="absolute z-10"
+            style={{bottom: graphicalPosition.y + '%', left: graphicalPosition.x + '%'}} 
+            ref={graphObj} 
+            initial={{ opacity: 1 }}
+            animate={{ opacity: 0 }}
+            exit={{ opacity: 0}}
+            transition={{ duration: 8 }}
+          >
+            <img src={explodeImg} width={4*contextApp.masterWidth/width}/>
+          </motion.div>
+        </AnimatePresence>
+      :
+      <></>
+      )
+  )
 }

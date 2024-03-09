@@ -11,11 +11,6 @@ export const placementManeger = (begin:boolean, graphObj:any, toggleDetail:boole
             //const oldAngle = Math.atan2(spawn.velocity.y, spawn.velocity.x) * 57.2958
             const velocityMagnitude = Math.abs(Math.pow(spawn.velocity.x, 2) + Math.pow(spawn.velocity.y, 2))
             
-            console.log('the thing = ' + angleChange)
-            console.log('old = ' + spawn.velocity.x)
-            console.log('mag = ' + velocityMagnitude)
-            console.log('new_x = ' + velocityMagnitude * Math.cos(angleChange))
-            console.log('new_y = ' + velocityMagnitude * Math.sin(angleChange))
             newSpawns[indexSpawn] = {
                 ...spawn,
                 velocity: {x: velocityMagnitude * Math.sin(angleChange * Math.PI/180), y: velocityMagnitude * Math.cos(angleChange * Math.PI/180), z:0},

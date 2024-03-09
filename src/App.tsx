@@ -1,8 +1,19 @@
 import React, { useState, useEffect, useRef } from 'react'
 import africaMap from './assets/map_africa.png'
 import { collisionHandler } from './collider.tsx'
-import {graphTimer, mapHandler, Trajectory, Spawn, spawnHandler, ContextProvider} from './Auxiliary.tsx'
+import {graphTimer, mapHandler, Spawn, spawnHandler} from './Auxiliary.tsx'
 import PhysicsObj from './physicsObj/PhysicsObj.tsx'
+import { launchMissile } from './physicsObj/Interaction.tsx'
+
+interface ContextProvider {
+  masterWidth: number,
+  masterHeight: number,
+  graphTime: number,
+  begin: boolean,
+  spawns: Spawn[],
+  setSpawns: (a:any)=>void
+}
+
 
 export const Context = React.createContext<ContextProvider>()
 
@@ -26,8 +37,9 @@ function App() {
   spawnHandler(spawns, setSpawns, updateSpawns)
 
   // determine if collision occured and update states
-  collisionHandler(spawns, setSpawns, graphTime, masterWidth, masterHeight)
+  collisionHandler(begin, spawns, setSpawns, graphTime, masterWidth, masterHeight)
 
+  // upon clicking the button, toggle pause or play
   const toggleBegin = () => {
     setBegin( (begin) => !begin)
   }
@@ -60,18 +72,19 @@ function App() {
     document.addEventListener("mousemove", handleMouseMove);
   }
 
+  // spawn rockets
+  launchMissile(setSpawns, spawns[0]) 
+
   return (
-    <Context.Provider value={{masterWidth, masterHeight, graphTime, begin, spawns}}>
+    <Context.Provider value={{masterWidth, masterHeight, graphTime, begin, spawns, setSpawns}}>
       <div className="flex mt-5 relative z-0">
         <div className="flex-auto overflow-hidden w-2/3 cursor-cell" ref={map_y}>
           {spawns.map( (spawn, index) => (
             <PhysicsObj
               key={index}
               width={75}
-              spawn={spawn} setSpawns={setSpawns}
+              spawn={spawn}
               indexSpawn={index}
-              mapWidth={masterWidth} mapHeight={masterHeight}
-              begin={begin}
             />
           ))}
           <img src={africaMap} className="scale-150"/>

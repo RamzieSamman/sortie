@@ -1,5 +1,5 @@
 import {Spawn} from './Auxiliary.tsx'
-import { useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 
 // determines if object 1 is colliding with object 2
 function determine_collision(phys_obj_1: Spawn, phys_obj_2: Spawn, masterWidth:number, masterHeight:number):boolean {
@@ -13,42 +13,28 @@ function determine_collision(phys_obj_1: Spawn, phys_obj_2: Spawn, masterWidth:n
   return false
 }
 
-export function collision(physicObjs: Spawn[], setPhysicObjs: (a:Spawn[]) => void, masterWidth:number, masterHeight:number):number[] {
-  let collisionOccured:number[] = []
+export function collision(physicObjs: Spawn[], setPhysicObjs: (a:Spawn[]) => void, masterWidth:number, masterHeight:number):void {
 
   // determine what objects are colliding
   physicObjs.forEach( (firstPhysicObj:Spawn, i) => {
     physicObjs.forEach( (secondPhysicObj:Spawn, k) => {
-      if (k != i) {
+      if (k != i && (firstPhysicObj.exploded === false || secondPhysicObj.exploded === false)) {
         if (determine_collision(firstPhysicObj, secondPhysicObj, masterWidth, masterHeight)) {
           setPhysicObjs( (oldPhysicObjs:Spawn[]) => {
-            let newPhysicObjs:Spawn[] = [...oldPhysicObjs]
+            let newPhysicObjs:Spawn[] = oldPhysicObjs
             newPhysicObjs[k] = {...firstPhysicObj, exploded: true}
             return newPhysicObjs
           })
-          collisionOccured.push(k)
         }
       }
     })    
   })
-  return collisionOccured
 }
 
-export const collisionHandler = (spawns:Spawn[], setSpawns:(a:Spawn[]) => void, graphTime:number, masterWidth:number, masterHeight:number):void => {
-  // determine if collision occured and update states
+export const collisionHandler = (begin:boolean, spawns:Spawn[], setSpawns:(a:Spawn[]) => void, graphTime:number, masterWidth:number, masterHeight:number):void => {
   useEffect(() => {
-    // determine if a collision occured and update the spawn to render an explosion
-    let collisionOccured:number[] = collision(spawns, setSpawns, masterWidth, masterHeight)
-
-    // if collision occured remove the object after a short delay
-    if (collisionOccured.length >= 1) {
-      collisionOccured.forEach( (index) => {
-        // if it has exploded, wait a while until removing the object
-        setTimeout(() => {
-          // remove the object now
-          setSpawns(spawns.slice(index, index))
-        }, 8000)
-      })
+    if(begin) {
+      collision(spawns, setSpawns, masterWidth, masterHeight)
     }
   }, [graphTime])
 }
