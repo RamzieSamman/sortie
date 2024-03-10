@@ -19,17 +19,6 @@ export class SpawnAsset {
     this.velocity = velocity 
     this.width = width
     this.height = height
-    this.angle = this.get2DAngle()
-
-    //// update angle relative to velocity
-    //useEffect( () => {
-    //  const velocityMagnitude = this.get2DVelocityMagnitude()
-    //  this.velocity = {
-    //    x: velocityMagnitude * Math.sin(this.angle),
-    //    y: velocityMagnitude * Math.cos(this.angle),
-    //    z: this.velocity.z
-    //  }
-    //}, [this.velocity.x, this.velocity.y, this.velocity.z])
   }
 
   getSpawnArray() {
@@ -44,16 +33,6 @@ export class SpawnAsset {
     return spawnArray
   }
 
-  updateAngleAfterVelocityChange() {
-    const velocityMagnitude = this.get2DVelocityMagnitude()
-    const the2DAngle = Math.atan(this.velocity.y/this.velocity.x) * 180/Math.PI
-    this.velocity = {
-      x: velocityMagnitude * Math.sin(the2DAngle),
-      y: velocityMagnitude * Math.cos(the2DAngle),
-      z: this.velocity.z
-    }
-  }
-
   setSpawnArray({exploded, asset, position, velocity, width, height}:Spawn):void {
     this.exploded = exploded 
     this.asset = asset
@@ -63,8 +42,20 @@ export class SpawnAsset {
     this.height = height
   }
 
-  get2DAngle():number {
-    return Math.atan(this.velocity.y/this.velocity.x) * 180/Math.PI
+  get2DAngleDegrees():number {
+
+    let angleOffset = 0
+    // adjust the angle of velocity to the angle on a unit curve
+    if (this.velocity.x < 0 && this.velocity.y >= 0) {
+        angleOffset = 180
+    } else if (this.velocity.x < 0 && this.velocity.y < 0){
+        angleOffset = - 180
+    } else{
+        angleOffset = 0
+    }
+
+    //console.log('the degree is = ' + (-Math.atan(this.velocity.y/this.velocity.x) * 180/Math.PI + angleOffset))
+    return Math.atan(this.velocity.y/this.velocity.x) * 180/Math.PI + angleOffset
   }
 
   set2DVelocityFromAngle(angle:number):void {
@@ -72,12 +63,9 @@ export class SpawnAsset {
 
     this.velocity = {
       x: velocityMagnitude * Math.cos(angle * Math.PI/180),
-      y: -velocityMagnitude * Math.sin(angle * Math.PI/180),
+      y: velocityMagnitude * Math.sin(angle * Math.PI/180),
       z: this.velocity.z
     }
-
-    // update the angle
-    this.angle = angle 
   }
 
   get2DVelocityMagnitude():number {
@@ -86,16 +74,16 @@ export class SpawnAsset {
 
   // be careful calling this function, as you need to ensure you didn't
   // unintentionally increase velocity
-  set2DVelocity(velocity_x:number, velocity_y:number, velocity_z?:number):void {
-    // set the new x an y velocity
-    this.velocity.x = velocity_x
-    this.velocity.y = velocity_y
-
-    // if provided z, update z as well
-    if (velocity_z) {
-      this.velocity.z = velocity_z
-    }
-  }
+//  set2DVelocity(velocity_x:number, velocity_y:number, velocity_z?:number):void {
+//    // set the new x an y velocity
+//    this.velocity.x = velocity_x
+//    this.velocity.y = velocity_y
+//
+//    // if provided z, update z as well
+//    if (velocity_z) {
+//      this.velocity.z = velocity_z
+//    }
+//  }
 }
 
 export type Trajectory = {

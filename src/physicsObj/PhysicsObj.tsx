@@ -36,14 +36,13 @@ export default function PhysicsObj({width, spawn, indexSpawn}:PhysicProps) {
   const [graphicalPosition, setGraphicalPosition] = useState<Kinematics>({x: spawn.position.x, y: spawn.position.y, z: spawn.position.z})
   const [rotate, setRotate] = useState<number>(0)
   const graphObj = useRef<HTMLInputElement>(null)
-  const [dimension, setdimension] = useState<{width: number, height: number}>({width: 1, height: 1})
   const [toggleDetail, setToggleDetail] = useState<boolean>(false)
 
   // adjust plane graphically to accurately represent its position
-  graphicalManager(graphObj, dimension, setdimension, setGraphicalPosition, spawn, contextApp.masterWidth, contextApp.masterHeight)
+  graphicalManager(graphObj, contextApp.setSpawns, indexSpawn, setGraphicalPosition, spawn, contextApp.masterWidth, contextApp.masterHeight)
 
   // update the position due to velocity
-  velocityManeger(contextApp.begin, spawn, dimension, contextApp.setSpawns, indexSpawn, setRotate)
+  velocityManeger(contextApp.begin, spawn, contextApp.setSpawns, indexSpawn, setRotate)
 
   // display kinematics for physics property on click
   displayKinematics(contextApp.begin, graphObj, setToggleDetail)
@@ -83,7 +82,7 @@ function AssetFunctional({ toggleDetail, graphObj, rotate }:IntactAsset){
       className={"absolute z-10 flex flex-row"}
       style={{bottom: PhysicObjContext.graphicalPosition.y + '%', left: PhysicObjContext.graphicalPosition.x + '%'}}>
       <div className={"p-2 border-2 border-solid " + (toggleDetail ? ("border-zinc-600"):("border-transparent"))}>
-        <div ref={ graphObj } style={{transform: 'rotateZ(' + rotate + 'deg)'}} id={PhysicObjContext.indexSpawn + '-asset'} >
+        <div ref={ graphObj } style={{transform: 'rotateZ(' + rotate*(-1) + 'deg)'}} id={PhysicObjContext.indexSpawn + '-asset'} >
             <img src={PhysicObjContext.spawn.asset} width={4*contextApp.masterWidth/PhysicObjContext.width}/>
         </div>
       </div>

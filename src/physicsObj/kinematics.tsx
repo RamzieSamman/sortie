@@ -12,7 +12,7 @@ interface Resolution {
     height: number
 }
 
-export const velocityManeger = (begin:boolean, spawn:SpawnAsset, dimension:Dimension, setSpawns:(a:SpawnAsset[])=>void, indexSpawn:number, setRotate:(a:number)=>void):void => {
+export const velocityManeger = (begin:boolean, spawn:SpawnAsset, setSpawns:(a:SpawnAsset[])=>void, indexSpawn:number, setRotate:(a:number)=>void):void => {
     // import variables fromt he App.tsx
     const contextApp = useContext(Context)
 
@@ -27,8 +27,6 @@ export const velocityManeger = (begin:boolean, spawn:SpawnAsset, dimension:Dimen
                 spawn.setSpawnArray({
                     ...spawn.getSpawnArray(),
                     position: {x: spawn.velocity.x/10 + spawn.position.x, y: spawn.velocity.y/10 + spawn.position.y, z:0},
-                    height: dimension.height,
-                    width: dimension.width
                 })
                 newSpawns[indexSpawn] = spawn
 
@@ -36,13 +34,13 @@ export const velocityManeger = (begin:boolean, spawn:SpawnAsset, dimension:Dimen
             })
 
             // get the angle towards motion
-            setRotate(-Math.atan2(spawn.velocity.y, spawn.velocity.x) * 180/Math.PI)
+            setRotate(spawn.get2DAngleDegrees())
         }
 
     },[contextApp.graphTime])
 }
 
-export const graphicalManager = (graphObj:any, dimension:Dimension, setdimension:(a:Dimension)=>void, setGraphicalPosition:(a:Kinematics)=>void, spawn:SpawnAsset, mapWidth:number, mapHeight:number):void => {
+export const graphicalManager = (graphObj:any, setSpawns:(a:SpawnAsset)=>void, indexSpawn:number, setGraphicalPosition:(a:Kinematics)=>void, spawn:SpawnAsset, mapWidth:number, mapHeight:number):void => {
     // import variables fromt he App.tsx
     const contextApp = useContext(Context)
 
@@ -50,14 +48,20 @@ export const graphicalManager = (graphObj:any, dimension:Dimension, setdimension
     useEffect(() => {
         // adjust size of asset depending on its size in the dom
         if (graphObj.current) {
-            setdimension( (prevDimension) => {
-                return {...prevDimension, width: graphObj.current.clientHeight, height: graphObj.current.clientWidth}
-            } )
+            setSpawns( (spawns:SpawnAsset[]) => {
+                let newSpawns = spawns
+                newSpawns[indexSpawn].setSpawnArray({
+                    ...newSpawns[indexSpawn].getSpawnArray(),
+                    width: graphObj.current.clientHeight,
+                    height: graphObj.current.clientWidth
+                })
+                return newSpawns
+            })
         }
 
         // adjust the <x,y,z> position as the center of the object. (only for grpahical representation)
         setGraphicalPosition((prevGraphicalPosition) => {
-            return{...prevGraphicalPosition, x: spawn.position.x - 100*(dimension.width/2)/mapWidth, y: spawn.position.y - 100*(dimension.height/2)/mapHeight}
+            return{...prevGraphicalPosition, x: spawn.position.x - 100*(spawn.width/2)/mapWidth, y: spawn.position.y - 100*(spawn.height/2)/mapHeight}
         })
     }, [contextApp.masterWidth, contextApp.masterHeight, contextApp.graphTime])
 

@@ -73,7 +73,7 @@ function App() {
   }
 
   // spawn rockets
-//  launchMissile(setSpawns, spawns[0]) 
+  launchMissile(setSpawns, spawns[0], masterWidth, masterHeight) 
 
   return (
     <Context.Provider value={{masterWidth, masterHeight, graphTime, begin, spawns, setSpawns}}>

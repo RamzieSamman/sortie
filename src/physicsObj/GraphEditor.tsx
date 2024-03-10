@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { SpawnAsset } from '../Auxiliary'
 
 export const placementManeger = (begin:boolean, graphObj:any, toggleDetail:boolean, setToggleDetail:(a:boolean)=>void, setRotate:(a:number)=>void, rotate:number, indexSpawn:number, setSpawns:(a:SpawnAsset)=>void, spawns:SpawnAsset[]):void => {
-    const [angleChange, setAngleChange] = useState<number>(0)
+    const [angleChange, setAngleChange] = useState<number>(spawns[indexSpawn].get2DAngleDegrees())
 
     const constAdjustVelocity = (angleChange:number):void => {
         setSpawns((prevSpawns:SpawnAsset[]) => {
@@ -22,25 +22,13 @@ export const placementManeger = (begin:boolean, graphObj:any, toggleDetail:boole
     // rotate the asset in accordance to the scroll wheel
     const rotateThing = (e:any):void => {
         // update the new angle
-        let newRotate:number|null = null
+        let newRotate:number = 0
         // set this for graphical purpose, but this will be overridden in kinematics
         setRotate( (rotate) => {
             // add to the existing angle
             newRotate = rotate + e.deltaY/10
-
-            // keep the angle between 0+-360 and return the angle
-            if (newRotate > 360) {
-                newRotate = newRotate //- 360
-                setAngleChange(newRotate)
-                return newRotate
-            } else if (newRotate < -360){
-                newRotate = newRotate //+ 360
-                setAngleChange(newRotate)
-                return newRotate
-            } else {
-                setAngleChange(newRotate)
-                return newRotate
-            }
+            setAngleChange(newRotate)
+            return newRotate
         })
     }
 
