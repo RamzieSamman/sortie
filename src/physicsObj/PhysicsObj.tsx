@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useContext, SyntheticEvent, createContext } from 'react'
-import { Spawn, graphStep } from '../Auxiliary.tsx'
+import { Spawn, SpawnAsset, graphStep } from '../Auxiliary.tsx'
 import { placementManeger } from './GraphEditor.tsx'
 import { Context } from "../App.tsx"
 import { velocityManeger, graphicalManager } from './kinematics.tsx'
@@ -15,13 +15,13 @@ export interface Kinematics {
 
 type PhysicProps = {
   width: number,
-  spawn: Spawn,
+  spawn: SpawnAsset,
   indexSpawn: number,
 }
 
 type PhysicObjType = {
   width: number
-  spawn: Spawn
+  spawn: SpawnAsset
   indexSpawn: number
   graphicalPosition: Kinematics
 }
@@ -83,7 +83,7 @@ function AssetFunctional({ toggleDetail, graphObj, rotate }:IntactAsset){
       className={"absolute z-10 flex flex-row"}
       style={{bottom: PhysicObjContext.graphicalPosition.y + '%', left: PhysicObjContext.graphicalPosition.x + '%'}}>
       <div className={"p-2 border-2 border-solid " + (toggleDetail ? ("border-zinc-600"):("border-transparent"))}>
-        <div ref={ graphObj } style={{transform: 'rotate(' + rotate + 'deg)'}} id={PhysicObjContext.indexSpawn + '-asset'} >
+        <div ref={ graphObj } style={{transform: 'rotateZ(' + rotate + 'deg)'}} id={PhysicObjContext.indexSpawn + '-asset'} >
             <img src={PhysicObjContext.spawn.asset} width={4*contextApp.masterWidth/PhysicObjContext.width}/>
         </div>
       </div>

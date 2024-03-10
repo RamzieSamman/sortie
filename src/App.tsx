@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import africaMap from './assets/map_africa.png'
 import { collisionHandler } from './collider.tsx'
-import {graphTimer, mapHandler, Spawn, spawnHandler} from './Auxiliary.tsx'
+import { graphTimer, mapHandler, Spawn, SpawnAsset, spawnHandler} from './Auxiliary.tsx'
 import PhysicsObj from './physicsObj/PhysicsObj.tsx'
 import { launchMissile } from './physicsObj/Interaction.tsx'
 
@@ -22,7 +22,7 @@ function App() {
   const resolution: {x: number, y:number} = {x: 640, y: 480}
 
   // trajectories with z = -1, ensures it does not collide on init
-  const [spawns, setSpawns] = useState<Spawn[]>([])
+  const [spawns, setSpawns] = useState<SpawnAsset[]>([])
   const [updateSpawns, setUpdateSpawns] = useState<number>(0)
   const [begin, setBegin] = useState<boolean>(false)
 
@@ -73,7 +73,7 @@ function App() {
   }
 
   // spawn rockets
-  launchMissile(setSpawns, spawns[0]) 
+//  launchMissile(setSpawns, spawns[0]) 
 
   return (
     <Context.Provider value={{masterWidth, masterHeight, graphTime, begin, spawns, setSpawns}}>

@@ -1,27 +1,22 @@
 import { useEffect, useState } from 'react'
-import { Spawn } from '../Auxiliary'
+import { SpawnAsset } from '../Auxiliary'
 
-export const placementManeger = (begin:boolean, graphObj:any, toggleDetail:boolean, setToggleDetail:(a:boolean)=>void, setRotate:(a:number)=>void, rotate:number, indexSpawn:number, setSpawns:(a:Spawn)=>void, spawns:Spawn[]):void => {
+export const placementManeger = (begin:boolean, graphObj:any, toggleDetail:boolean, setToggleDetail:(a:boolean)=>void, setRotate:(a:number)=>void, rotate:number, indexSpawn:number, setSpawns:(a:SpawnAsset)=>void, spawns:SpawnAsset[]):void => {
     const [angleChange, setAngleChange] = useState<number>(0)
 
-    const constAdjustVelocity = (angleChange:number) => {
-        setSpawns((prevSpawns) => {
-            let newSpawns:Spawn[] = [...prevSpawns]
-            const spawn = prevSpawns[indexSpawn]
-            //const oldAngle = Math.atan2(spawn.velocity.y, spawn.velocity.x) * 57.2958
-            const velocityMagnitude = Math.abs(Math.pow(spawn.velocity.x, 2) + Math.pow(spawn.velocity.y, 2))
+    const constAdjustVelocity = (angleChange:number):void => {
+        setSpawns((prevSpawns:SpawnAsset[]) => {
+            // grab a copy of the spawns and the spawn of concern
+            let newSpawns = prevSpawns
+            let spawn = prevSpawns[indexSpawn]
+
+            // mutate position and update array
+            spawn.set2DVelocityFromAngle(angleChange)
             
-            newSpawns[indexSpawn] = {
-                ...spawn,
-                velocity: {x: velocityMagnitude * Math.sin(angleChange * Math.PI/180), y: velocityMagnitude * Math.cos(angleChange * Math.PI/180), z:0},
-            }
+            // push the new array in the useState
+            newSpawns[indexSpawn] = spawn
             return newSpawns
         })
-    }
-
-    const getVelocityAngle = (spawns:Spawn[], indexSpawn:number):number => {
-        spawns[indexSpawn]
-        return Math.atan(spawns[indexSpawn].velocity.y/spawns[indexSpawn].velocity.x) * 57.2958
     }
 
     // rotate the asset in accordance to the scroll wheel
@@ -31,14 +26,13 @@ export const placementManeger = (begin:boolean, graphObj:any, toggleDetail:boole
         // set this for graphical purpose, but this will be overridden in kinematics
         setRotate( (rotate) => {
             // add to the existing angle
-            newRotate = rotate - e.deltaY/10
-            console.log(newRotate)
+            newRotate = rotate + e.deltaY/10
 
             // keep the angle between 0+-360 and return the angle
             if (newRotate > 360) {
                 newRotate = newRotate //- 360
                 setAngleChange(newRotate)
-                return newRotate = newRotate
+                return newRotate
             } else if (newRotate < -360){
                 newRotate = newRotate //+ 360
                 setAngleChange(newRotate)
@@ -50,42 +44,50 @@ export const placementManeger = (begin:boolean, graphObj:any, toggleDetail:boole
         })
     }
 
-    const reposition = (e:any) => {
+    const reposition = (e:any):SpawnAsset[] => {
         // move left upon pressing 'a' or '<'
         if (e.key === 'a' || e.key === '<') {
-            setSpawns( (prevSpawns: Spawn[]) => {
-                let newSpawns:Spawn[] = [...prevSpawns]
-                const spawn = prevSpawns[indexSpawn]
-                newSpawns[indexSpawn] = {
-                    ...spawn,
-                    position: {x: -1 + spawn.position.x, y: spawn.position.y, z:0},
-                }
-                return newSpawns
+            setSpawns( (prevSpawns: SpawnAsset[]) => {
+                // grab a copy of the spawns and the spawn of concern
+                let newSpawns = prevSpawns
+                let spawn = prevSpawns[indexSpawn]
+
+                // mutate position and update array
+                spawn.setSpawnArray({...spawn.getSpawnArray(), position: {x: -1 + spawn.position.x, y: spawn.position.y, z:0}})
+                newSpawns[indexSpawn] = spawn
+
+                // push the new array in the useState
+                return newSpawns 
             })
         }
 
         // move right upon pressing 'd' or '>'
         if (e.key === 'd' || e.key === '>') {
-            setSpawns( (prevSpawns: Spawn[]) => {
-                let newSpawns:Spawn[] = [...prevSpawns]
-                const spawn = prevSpawns[indexSpawn]
-                newSpawns[indexSpawn] = {
-                    ...spawn,
-                    position: {x: 1 + spawn.position.x, y: spawn.position.y, z:0},
-                }
+            setSpawns( (prevSpawns: SpawnAsset[]) => {
+                // grab a copy of the spawns and the spawn of concern
+                let newSpawns = prevSpawns
+                let spawn = prevSpawns[indexSpawn]
+
+                // mutate position
+                spawn.setSpawnArray({...spawn.getSpawnArray(), position: {x: spawn.position.x + 1, y: spawn.position.y, z:0}})
+                newSpawns[indexSpawn] = spawn
+
                 return newSpawns
             })
         }
 
         // move down upon pressing 's' or uparrow key
         if (e.key === 's' || e.keyCode === 38) {
-            setSpawns( (prevSpawns: Spawn[]) => {
-                let newSpawns:Spawn[] = [...prevSpawns]
-                const spawn = prevSpawns[indexSpawn]
-                newSpawns[indexSpawn] = {
-                    ...spawn,
-                    position: {x: spawn.position.x, y: -1 + spawn.position.y, z:0},
-                }
+            setSpawns( (prevSpawns: SpawnAsset[]) => {
+                // grab a copy of the spawns and the spawn of concern
+                let newSpawns = prevSpawns
+                let spawn = prevSpawns[indexSpawn]
+
+                // mutate position and update array
+                spawn.setSpawnArray({...spawn.getSpawnArray(), position: {x: spawn.position.x, y: spawn.position.y - 1, z:0}})
+                newSpawns[indexSpawn] = spawn
+
+                // push the new array in the useState
                 return newSpawns
             })
         }
@@ -93,17 +95,21 @@ export const placementManeger = (begin:boolean, graphObj:any, toggleDetail:boole
         // move up upon pressing 'w' or '^'
         if (e.key === 'w' || e.key === '^') {
             setSpawns( (prevSpawns: Spawn[]) => {
-                let newSpawns:Spawn[] = [...prevSpawns]
-                const spawn = prevSpawns[indexSpawn]
-                newSpawns[indexSpawn] = {
-                    ...spawn,
-                    position: {x: spawn.position.x, y: 1 + spawn.position.y, z:0},
-                }
+                // grab a copy of the spawns and the spawn of concern
+                let newSpawns = prevSpawns
+                let spawn = prevSpawns[indexSpawn]
+
+                // mutate position and update array
+                spawn.setSpawnArray({...spawn.getSpawnArray(), position: {x: spawn.position.x, y: spawn.position.y + 1, z:0}})
+                newSpawns[indexSpawn] = spawn
+
+                // push the new array in the useState
                 return newSpawns
             })
         }
-    }
 
+        return spawns
+    }
 
     useEffect(() => {
         if (begin) {
