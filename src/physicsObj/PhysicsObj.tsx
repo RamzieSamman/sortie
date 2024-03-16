@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useContext, SyntheticEvent, createContext } from 'react'
 import { Spawn, SpawnAsset, graphStep } from '../Auxiliary.tsx'
 import { placementManeger } from './GraphEditor.tsx'
-import { Context } from "../App.tsx"
+import { Context } from "../Map.tsx"
 import { velocityManeger, graphicalManager } from './kinematics.tsx'
 import { motion, AnimatePresence } from "framer-motion"
 import { displayKinematics, launchMissile } from './Interaction.tsx'

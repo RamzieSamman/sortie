@@ -1,5 +1,5 @@
 import { useContext, useEffect } from 'react'
-import { Context } from "../App.tsx"
+import { Context } from "../Map.tsx"
 import { Kinematics } from './PhysicsObj.tsx'
 import { Spawn, SpawnAsset } from '../Auxiliary'
 
