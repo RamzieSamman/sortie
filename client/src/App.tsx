@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react"
 import ThemeProvider from "./components/theme-provider"
 import { Link, Outlet } from '@tanstack/react-router'
 
