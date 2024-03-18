@@ -9,7 +9,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss(), TanStackRouterVite()],
   server: {
     proxy: {
-      '/testy': {
+      '/api': {
         target: 'http://localhost:3000',
         changeOrigin: true,
         secure: false
