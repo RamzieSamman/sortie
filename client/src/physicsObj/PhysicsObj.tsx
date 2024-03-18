@@ -77,13 +77,21 @@ function AssetFunctional({ toggleDetail, graphObj, rotate }:IntactAsset){
   // import physic object variables
   const PhysicObjContext = useContext(physicObjContext)
 
+  useEffect(() => {
+    console.log('master width = ' + contextApp.masterWidth)
+  }, [contextApp.masterWidth])
+
+  useEffect(() => {
+    console.log('physic width = ' + PhysicObjContext.width)
+  }, [PhysicObjContext.width])
+
   return (
     <div
-      className={"absolute z-10 flex flex-row"}
-      style={{bottom: PhysicObjContext.graphicalPosition.y + '%', left: PhysicObjContext.graphicalPosition.x + '%'}}>
+      className={"absolute z-10 hover:cursor-pointer"}
+      style={{bottom: PhysicObjContext.graphicalPosition.y + 'px', left: PhysicObjContext.graphicalPosition.x + 'px'}}>
       <div className={"p-2 border-2 border-solid " + (toggleDetail ? ("border-zinc-600"):("border-transparent"))}>
         <div ref={ graphObj } style={{transform: 'rotateZ(' + rotate*(-1) + 'deg)'}} id={PhysicObjContext.indexSpawn + '-asset'} >
-            <img src={PhysicObjContext.spawn.asset} width={4*contextApp.masterWidth/PhysicObjContext.width}/>
+            <img src={PhysicObjContext.spawn.asset} width={PhysicObjContext.width/2} className='min-w-12 w-12' />
         </div>
       </div>
     

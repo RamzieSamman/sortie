@@ -42,24 +42,30 @@ export function Map() { // 480p resolution
   const toggleBegin = () => {
     setBegin( (begin) => !begin)
   }
+                //<img src={africaMap} className="scale-150"/>
 
   // spawn rockets
   launchMissile(setSpawns, spawns[0], masterWidth, masterHeight) 
 
   return (
     <Context.Provider value={{masterWidth, masterHeight, graphTime, begin, spawns, setSpawns}}>
-        <div className="flex relative z-0">
-            <div className="flex-auto overflow-hidden w-2/3 cursor-cell" ref={map_y}>
-                {spawns.map( (spawn, index) => (
-                <PhysicsObj
-                    key={index}
-                    width={75}
-                    spawn={spawn}
-                    indexSpawn={index}
-                />
-                ))}
-                <img src={africaMap} className="scale-150"/>
-            </div>
+        <div className="relative z-0 cursor-grab">
+          <div
+            style={{
+                backgroundSize: '10px 10px', backgroundImage: 'linear-gradient(to right, #d9d9d9 1px, transparent 1px), linear-gradient(to bottom, #d9d9d9 1px, transparent 1px)',
+                width: '15000px', height: '15000px'
+              }}
+            ref={map_y}
+          >
+          </div>
+              {spawns.map( (spawn, index) => (
+              <PhysicsObj
+                  key={index}
+                  width={75}
+                  spawn={spawn}
+                  indexSpawn={index}
+              />
+              ))}
         </div>
         <button className="bg-indigo-500 m-4 p-4" onClick={toggleBegin}>begin</button>
     </Context.Provider>

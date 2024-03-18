@@ -112,7 +112,7 @@ export const spawnHandler = (spawns:any, setSpawns:any, updateSpawns: number):vo
     // create two physics objects
     setSpawns([
         ...spawns,
-        new SpawnAsset(false, jetPlane, {x: 70, y: 50, z: 10}, {x: 1, y: 0, z: 0}, 0, 0),
+        new SpawnAsset(false, jetPlane, {x: 14500, y: 50, z: 10}, {x: 1, y: 0, z: 0}, 0, 0),
         new SpawnAsset(false, missile, {x: 50, y: 50, z: 10}, {x: 1, y: 0, z: 0}, 0, 0),
         new SpawnAsset(false, missile, {x: 30, y: 30, z: 10}, {x: 1, y: 0, z: 0}, 0, 0),
         new SpawnAsset(false, missile, {x: 30, y: 50, z: 10}, {x: 1, y: 0, z: 0}, 0, 0),
