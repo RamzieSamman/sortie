@@ -87,11 +87,11 @@ function AssetFunctional({ toggleDetail, graphObj, rotate }:IntactAsset){
 
   return (
     <div
-      className={"absolute z-10 hover:cursor-pointer"}
+      className={"absolute z-10 hover:cursor-pointer select-none"}
       style={{bottom: PhysicObjContext.graphicalPosition.y + 'px', left: PhysicObjContext.graphicalPosition.x + 'px'}}>
       <div className={"p-2 border-2 border-solid " + (toggleDetail ? ("border-zinc-600"):("border-transparent"))}>
         <div ref={ graphObj } style={{transform: 'rotateZ(' + rotate*(-1) + 'deg)'}} id={PhysicObjContext.indexSpawn + '-asset'} >
-            <img src={PhysicObjContext.spawn.asset} width={PhysicObjContext.width/2} className='min-w-12 w-12' />
+            <img src={PhysicObjContext.spawn.asset} width={PhysicObjContext.width/2} className='min-w-12 w-12 select-none' />
         </div>
       </div>
     
@@ -132,7 +132,7 @@ function Explosion({ graphicalPosition, width, delay }:explosionProp){
       ?
         <AnimatePresence>
           <motion.div 
-            className="absolute z-10"
+            className="absolute z-10 select-none"
             style={{bottom: graphicalPosition.y + '%', left: graphicalPosition.x + '%'}} 
             ref={graphObj} 
             initial={{ opacity: 1 }}

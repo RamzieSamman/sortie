@@ -12,8 +12,11 @@
   "dependencies": {
     "@libsql/client": "^0.5.6",
     "bun": "^1.0.32",
+    "dragscroll": "^0.0.8",
     "drizzle-orm": "^0.30.2",
     "hono": "^4.1.1"
   },
-  "devDependencies": { "drizzle-kit": "^0.20.14" }
+  "devDependencies": {
+    "drizzle-kit": "^0.20.14"
+  }
 }
