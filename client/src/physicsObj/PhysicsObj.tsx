@@ -77,14 +77,6 @@ function AssetFunctional({ toggleDetail, graphObj, rotate }:IntactAsset){
   // import physic object variables
   const PhysicObjContext = useContext(physicObjContext)
 
-  useEffect(() => {
-    console.log('master width = ' + contextApp.masterWidth)
-  }, [contextApp.masterWidth])
-
-  useEffect(() => {
-    console.log('physic width = ' + PhysicObjContext.width)
-  }, [PhysicObjContext.width])
-
   return (
     <div
       className={"absolute z-10 hover:cursor-pointer select-none"}
