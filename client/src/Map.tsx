@@ -1,10 +1,8 @@
 import React, { useState, useRef, useEffect, JSXElementConstructor} from 'react'
-import africaMap from './assets/map_africa.png'
 import { collisionHandler } from './collider.tsx'
 import { graphTimer, mapHandler, Spawn, SpawnAsset, spawnHandler} from './Auxiliary.tsx'
 import PhysicsObj from './physicsObj/PhysicsObj.tsx'
 import { launchMissile } from './physicsObj/Interaction.tsx'
-import throttle from 'lodash.throttle'
 import { dragToScroll, dragToSelect, placeText, toolAction } from './mapInteractions/MapInteraction.tsx'
 import cursorPointer from './assets/cursor-pointer.svg'
 import cursorGrab from './assets/cursor-grab.svg'
@@ -99,11 +97,10 @@ function PlaceTexts({theTexts, toolBar, setToolBar}:{theTexts:TextBox[], toolBar
 
   return (
     <>
-      {theTexts.map( (theText:TextBox, index:number) => (<PlaceText theText={theText} toolBar={toolBar} setToolBar={setToolBar} key={index} />))}
+      {theTexts.map( (theText, index) => (<PlaceText theText={theText} toolBar={toolBar} setToolBar={setToolBar} key={index} />))}
     </>
   )
 }
-
 
 function PlaceText({theText, toolBar, setToolBar}:{theText:TextBox, toolBar: ToolBar, setToolBar: (a:ToolBar)=>void}){
   const [onFocus, setOnFocus] = useState<boolean>(false)
@@ -111,7 +108,8 @@ function PlaceText({theText, toolBar, setToolBar}:{theText:TextBox, toolBar: Too
   const [position, setPosition] = useState<{x:number, y:number}>({x:theText.x, y:theText.y})
 
   const dragObj = (e:MouseEvent) => {
-    //if (toolBar !== 'default') return
+    console.log(toolBar)
+    if (toolBar !== 'default') return
     // get the starting click poisition
     let startX = e.offsetX
     let startY = e.offsetY
@@ -140,16 +138,22 @@ function PlaceText({theText, toolBar, setToolBar}:{theText:TextBox, toolBar: Too
     return () => {
       ref.current?.removeEventListener('mousedown', dragObj)
     }
-  }, [])
+  }, [toolBar])
 
+  const toSetFocus = (toolBar:ToolBar) => {
+    if (toolBar === 'default') {
+      setOnFocus(true)
+      console.log('beep')
+    }
+  }
 
   return(
-          <div className={'p-1 z-20 absolute border-dashed border-2 ' + (onFocus ? 'border-slate-500 hover:cursor-move' : 'border-transparent')}
-            style={{top: position.y, left: position.x}}
-            onClick={()=>setOnFocus(true)} 
-            onBlur={()=>setOnFocus(false)}
-            ref={ref}
-            tabIndex={1}
-          >{theText.text}</div>
+    <div className={'p-1 z-20 absolute border-dashed border-2 ' + (onFocus ? 'border-slate-500 hover:cursor-move' : 'border-transparent')}
+    style={{top: position.y, left: position.x, userSelect: "none"}}
+    onClick={()=>toSetFocus(toolBar)} 
+    onBlur={()=>setOnFocus(false)}
+    ref={ref}
+    tabIndex={1}
+  >{theText.text}</div>
   )
 }
