@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react'
 import { TextBox, ToolBar } from '../Map'
 // if clicked and drag to scroll
-export function dragToScroll(e:React.MouseEvent<HTMLDivElement, MouseEvent>, map_y:React.RefObject<HTMLElement>) {
+export function dragToScroll(e:React.MouseEvent<HTMLDivElement, MouseEvent>) {
     let drag = true
     let startX = e.clientX
     let startY = e.clientY
@@ -19,14 +19,16 @@ export function dragToScroll(e:React.MouseEvent<HTMLDivElement, MouseEvent>, map
         const walkY = y - startY
         window.scroll(scrollLeft - walkX, scrollRight - walkY)
     }
-    map_y.current?.addEventListener('mousemove', movingScroll)
+    document.body.addEventListener('mousemove', movingScroll)
 
-    map_y.current?.addEventListener('mouseup', () => {
+    document.body.addEventListener('mouseup', () => {
         drag = false
+        document.body.removeEventListener('mousemove', movingScroll)
     })
 
-    map_y.current?.addEventListener('mouseleave', () => {
+    document.body.addEventListener('mouseleave', () => {
         drag = false
+        document.body.removeEventListener('mousemove', movingScroll)
     })
 }
 
@@ -84,13 +86,16 @@ export function dragToSelect(e:React.MouseEvent<HTMLDivElement, MouseEvent>, map
     })
 }
 
-export function toolAction(e:React.MouseEvent<HTMLDivElement, MouseEvent>, map_y:React.RefObject<HTMLElement>, toolBar:ToolBar, textBox: TextBox[], setTextBox: (a:TextBox[])=>void) {
-    if (toolBar === 'default') {dragToSelect(e, map_y)}
-    else if (toolBar === "grab") {dragToScroll(e, map_y)}
-    else if (toolBar === "cell") {placeText(e, map_y, textBox, setTextBox)}
+export function outerToolAction(e:React.MouseEvent<HTMLDivElement, MouseEvent>, map_y:React.RefObject<HTMLElement>, toolBar:ToolBar, setToolBar:(a:ToolBar)=>void, textBox: TextBox[], setTextBox: (a:TextBox[])=>void) {
+    if (toolBar === "grab") {dragToScroll(e)}
 }
 
-function placeText(e:React.MouseEvent<HTMLDivElement, MouseEvent>, map_y:React.RefObject<HTMLElement>, textBox: TextBox[], setTextBox: (a:TextBox[])=>void) {
+export function toolAction(e:React.MouseEvent<HTMLDivElement, MouseEvent>, map_y:React.RefObject<HTMLElement>, toolBar:ToolBar, setToolBar: (a:ToolBar)=>void, textBox: TextBox[], setTextBox: (a:TextBox[])=>void) {
+    if (toolBar === 'default') {dragToSelect(e, map_y)}
+    else if (toolBar === "cell") {placeText(e, map_y, setToolBar, textBox, setTextBox)}
+}
+
+function placeText(e:React.MouseEvent<HTMLDivElement, MouseEvent>, map_y:React.RefObject<HTMLElement>, setToolBar:(a:ToolBar)=>void, textBox: TextBox[], setTextBox: (a:TextBox[])=>void) {
     // get the location of the text
     const x = e.pageX
     const y = e.pageY
@@ -109,5 +114,10 @@ function placeText(e:React.MouseEvent<HTMLDivElement, MouseEvent>, map_y:React.R
         const theText = textInput.value
         textInput.remove()
         setTextBox([...textBox, {x, y, text: theText}])
+        setToolBar("default")
     })
+
+    // set curor to a text icon while the input box is editable
+    setToolBar("text")
+
 }

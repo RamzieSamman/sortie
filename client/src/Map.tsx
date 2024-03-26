@@ -1,12 +1,11 @@
-import React, { useState, useRef, useEffect, JSXElementConstructor} from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { collisionHandler } from './collider.tsx'
 import { graphTimer, mapHandler, Spawn, SpawnAsset, spawnHandler} from './Auxiliary.tsx'
 import PhysicsObj from './physicsObj/PhysicsObj.tsx'
 import { launchMissile } from './physicsObj/Interaction.tsx'
-import { dragToScroll, dragToSelect, placeText, toolAction } from './mapInteractions/MapInteraction.tsx'
+import { outerToolAction, toolAction } from './mapInteractions/MapInteraction.tsx'
 import cursorPointer from './assets/cursor-pointer.svg'
 import cursorGrab from './assets/cursor-grab.svg'
-
 
 interface ContextProvider {
   masterWidth: number,
@@ -23,7 +22,7 @@ export type TextBox = {
   text: string
 }
 
-const ToolBars = ["default", "grab", "cell", "move"] as const
+const ToolBars = ["default", "grab", "cell", "move", "text"] as const
 export type ToolBar = typeof ToolBars[number]
 
 export const Context = React.createContext<ContextProvider>()
@@ -61,14 +60,16 @@ export function Map() { // 480p resolution
 
   return (
     <Context.Provider value={{masterWidth, masterHeight, graphTime, begin, spawns, setSpawns}}>
-        <div className="relative z-0 font-['Virgil']" style={{cursor: toolBar}}>
+        <div className="relative z-0 font-['Virgil']" style={{cursor: toolBar}}
+        onMouseDown={(e) => outerToolAction(e, map_y, toolBar, setToolBar, textBox, setTextBox)}
+        >
           <div 
             style={{
                 backgroundSize: '10px 10px', backgroundImage: 'linear-gradient(to right, #d9d9d9 1px, transparent 1px), linear-gradient(to bottom, #d9d9d9 1px, transparent 1px)',
                 width: '15000px', height: '15000px'
               }}
             ref={map_y}
-            onMouseDown={(e) => toolAction(e, map_y, toolBar, textBox, setTextBox)}
+          onMouseDown={(e) => toolAction(e, map_y, toolBar, setToolBar, textBox, setTextBox)}
           >
           </div>
               {spawns.map( (spawn, index) => (
@@ -108,7 +109,6 @@ function PlaceText({theText, toolBar, setToolBar}:{theText:TextBox, toolBar: Too
   const [position, setPosition] = useState<{x:number, y:number}>({x:theText.x, y:theText.y})
 
   const dragObj = (e:MouseEvent) => {
-    console.log(toolBar)
     if (toolBar !== 'default') return
     // get the starting click poisition
     let startX = e.offsetX
@@ -132,8 +132,9 @@ function PlaceText({theText, toolBar, setToolBar}:{theText:TextBox, toolBar: Too
 }
 
   useEffect( () => {
-    ref.current?.addEventListener('mousedown', dragObj)
-
+    if (toolBar === 'default') {
+      ref.current?.addEventListener('mousedown', dragObj)
+    }
 
     return () => {
       ref.current?.removeEventListener('mousedown', dragObj)
@@ -143,7 +144,6 @@ function PlaceText({theText, toolBar, setToolBar}:{theText:TextBox, toolBar: Too
   const toSetFocus = (toolBar:ToolBar) => {
     if (toolBar === 'default') {
       setOnFocus(true)
-      console.log('beep')
     }
   }
 
@@ -151,6 +151,7 @@ function PlaceText({theText, toolBar, setToolBar}:{theText:TextBox, toolBar: Too
     <div className={'p-1 z-20 absolute border-dashed border-2 ' + (onFocus ? 'border-slate-500 hover:cursor-move' : 'border-transparent')}
     style={{top: position.y, left: position.x, userSelect: "none"}}
     onClick={()=>toSetFocus(toolBar)} 
+    onDoubleClick={() => setEdit(true)}
     onBlur={()=>setOnFocus(false)}
     ref={ref}
     tabIndex={1}
