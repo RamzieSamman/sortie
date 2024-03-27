@@ -81,7 +81,7 @@ export function Map() { // 480p resolution
               />
               ))}
 
-              <PlaceTexts theTexts={textBox} toolBar={toolBar} setToolBar={setToolBar}/>
+              <PlaceTexts theTexts={textBox} toolBar={toolBar} setToolBar={setToolBar} setTheTexts={setTextBox}/>
 
             <div className="fixed z-10 select-none bg-white border-2 border-slate-300 rounded-md mt-3 flex flex-col" style={{left: '20px', top: '0px'}}>
                 <div className='py-2 px-2 m-1 rounded-sm cursor-pointer hover:bg-orange-100' onClick={()=> setToolBar('default')}> <img src={cursorPointer} width="20px" /> </div>
@@ -94,19 +94,21 @@ export function Map() { // 480p resolution
   )
 }
 
-function PlaceTexts({theTexts, toolBar, setToolBar}:{theTexts:TextBox[], toolBar: ToolBar, setToolBar: (a:ToolBar)=>void}) {
+function PlaceTexts({theTexts, toolBar, setToolBar, setTheTexts}:{theTexts:TextBox[], toolBar: ToolBar, setToolBar: (a:ToolBar)=>void, setTheTexts: (a:TextBox[])=>void}) {
 
   return (
     <>
-      {theTexts.map( (theText, index) => (<PlaceText theText={theText} toolBar={toolBar} setToolBar={setToolBar} key={index} />))}
+      {theTexts.map( (theText, index) => (<PlaceText theTexts={theTexts} setTheTexts={setTheTexts} theText={theText} toolBar={toolBar} setToolBar={setToolBar} index={index} key={index} />))}
     </>
   )
 }
 
-function PlaceText({theText, toolBar, setToolBar}:{theText:TextBox, toolBar: ToolBar, setToolBar: (a:ToolBar)=>void}){
+function PlaceText({ theTexts, setTheTexts, theText, toolBar, setToolBar, index}:{ theTexts:TextBox[], setTheTexts:(a:TextBox[])=>void, theText:TextBox, toolBar: ToolBar, setToolBar: (a:ToolBar)=>void, index:number}){
   const [onFocus, setOnFocus] = useState<boolean>(false)
   const ref = useRef<HTMLDivElement | null>(null)
   const [position, setPosition] = useState<{x:number, y:number}>({x:theText.x, y:theText.y})
+  const [edit, setEdit] = useState<boolean>(false)
+  const [newText, setNewText] = useState<string>(theText.text)
 
   const dragObj = (e:MouseEvent) => {
     if (toolBar !== 'default') return
@@ -123,11 +125,26 @@ function PlaceText({theText, toolBar, setToolBar}:{theText:TextBox, toolBar: Too
         const x = e.pageX
         const y = e.pageY
         setPosition({x: x - startX, y: y - startY})
+        
     }
     document.addEventListener('mousemove', startDrag)
     document.addEventListener('mouseup', () => {
       drag = false
       document.removeEventListener('mousemove', startDrag)
+
+      // update position in the textboxs array
+      let newTextArray = theTexts
+      newTextArray[index] = {...newTextArray[index], x: position.x, y: position.y}
+      setTheTexts(newTextArray)
+    })
+    document.addEventListener('mouseleave', () => {
+      drag = false
+      document.removeEventListener('mousemove', startDrag)
+
+      // update position in the textboxs array
+      let newTextArray = theTexts
+      newTextArray[index] = {...newTextArray[index], x: position.x, y: position.y}
+      setTheTexts(newTextArray)
     })
 }
 
@@ -135,11 +152,12 @@ function PlaceText({theText, toolBar, setToolBar}:{theText:TextBox, toolBar: Too
     if (toolBar === 'default') {
       ref.current?.addEventListener('mousedown', dragObj)
     }
+    console.log(position)
 
     return () => {
       ref.current?.removeEventListener('mousedown', dragObj)
     }
-  }, [toolBar])
+  }, [toolBar, edit])
 
   const toSetFocus = (toolBar:ToolBar) => {
     if (toolBar === 'default') {
@@ -147,14 +165,25 @@ function PlaceText({theText, toolBar, setToolBar}:{theText:TextBox, toolBar: Too
     }
   }
 
-  return(
-    <div className={'p-1 z-20 absolute border-dashed border-2 ' + (onFocus ? 'border-slate-500 hover:cursor-move' : 'border-transparent')}
-    style={{top: position.y, left: position.x, userSelect: "none"}}
-    onClick={()=>toSetFocus(toolBar)} 
-    onDoubleClick={() => setEdit(true)}
-    onBlur={()=>setOnFocus(false)}
-    ref={ref}
-    tabIndex={1}
-  >{theText.text}</div>
-  )
+  if (edit) {
+    return (
+      <textarea name={theText.text} value={newText} 
+        className={'p-1 z-20 absolute border-dashed border-2 border-slate-500 hover:cursor-move bg-transparent outline-none'}
+        style={{ top: position.y, left: position.x }}
+        onChange={(e)=> setNewText(e.target.value)}
+        onBlur={() => setEdit(false)}
+      autoFocus={true}/>
+    )
+  } else {
+    return(
+      <div className={'p-1 z-20 absolute border-dashed border-2 ' + (onFocus ? 'border-slate-500 hover:cursor-move' : 'border-transparent')}
+      style={{top: position.y, left: position.x, userSelect: "none"}}
+      onClick={()=>toSetFocus(toolBar)} 
+      onDoubleClick={() => setEdit(true)}
+      onBlur={()=>setOnFocus(false)}
+      ref={ref}
+      tabIndex={1}
+      >{newText}</div>
+    )
+  }
 }
