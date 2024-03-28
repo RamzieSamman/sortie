@@ -17,9 +17,11 @@ interface ContextProvider {
 }
 
 export type TextBox = {
-  x: number,
-  y: number,
+  x: number
+  y: number
   text: string
+  width: number
+  height: number
 }
 
 const ToolBars = ["default", "grab", "cell", "move", "text"] as const
@@ -35,7 +37,7 @@ export function Map() { // 480p resolution
   const [updateSpawns, setUpdateSpawns] = useState<number>(0)
   const [begin, setBegin] = useState<boolean>(false)
   const [toolBar, setToolBar] = useState<ToolBar>("default")
-  const [textBox, setTextBox] = useState<TextBox[]>([{x: 0, y: 0, text: ''}])
+  const [textBox, setTextBox] = useState<TextBox[]>([{x: 0, y: 0, text: '', width: 0, height: 0}])
 
   // set the graphic/mechanical timer
   const graphTime:number = graphTimer()
@@ -106,6 +108,7 @@ function PlaceTexts({theTexts, toolBar, setToolBar, setTheTexts}:{theTexts:TextB
 function PlaceText({ theTexts, setTheTexts, theText, toolBar, setToolBar, index}:{ theTexts:TextBox[], setTheTexts:(a:TextBox[])=>void, theText:TextBox, toolBar: ToolBar, setToolBar: (a:ToolBar)=>void, index:number}){
   const [onFocus, setOnFocus] = useState<boolean>(false)
   const ref = useRef<HTMLDivElement | null>(null)
+  const textAreaRef = useRef<HTMLTextAreaElement | null>(null) 
   const [position, setPosition] = useState<{x:number, y:number}>({x:theText.x, y:theText.y})
   const [edit, setEdit] = useState<boolean>(false)
   const [newText, setNewText] = useState<string>(theText.text)
@@ -128,8 +131,9 @@ function PlaceText({ theTexts, setTheTexts, theText, toolBar, setToolBar, index}
         
     }
     document.addEventListener('mousemove', startDrag)
-    document.addEventListener('mouseup', () => {
+    document.addEventListener('mouseup', (e:MouseEvent) => {
       drag = false
+      doubleClick(e)
       document.removeEventListener('mousemove', startDrag)
 
       // update position in the textboxs array
@@ -152,7 +156,6 @@ function PlaceText({ theTexts, setTheTexts, theText, toolBar, setToolBar, index}
     if (toolBar === 'default') {
       ref.current?.addEventListener('mousedown', dragObj)
     }
-    console.log(position)
 
     return () => {
       ref.current?.removeEventListener('mousedown', dragObj)
@@ -165,19 +168,28 @@ function PlaceText({ theTexts, setTheTexts, theText, toolBar, setToolBar, index}
     }
   }
 
+  const doubleClick = (e:MouseEvent) => {
+    if (textAreaRef.current) {
+      let newTheTexts = theTexts
+      newTheTexts[index] = {...theText, width: textAreaRef.current?.clientWidth, height: textAreaRef.current?.clientWidth}
+      setTheTexts(newTheTexts)
+    }
+  }
+
   if (edit) {
     return (
       <textarea name={theText.text} value={newText} 
         className={'p-1 z-20 absolute border-dashed border-2 border-slate-500 hover:cursor-move bg-transparent outline-none'}
-        style={{ top: position.y, left: position.x }}
+        style={{ top: position.y, left: position.x, resize: 'both'}}
         onChange={(e)=> setNewText(e.target.value)}
         onBlur={() => setEdit(false)}
+        ref={textAreaRef}
       autoFocus={true}/>
     )
   } else {
     return(
       <div className={'p-1 z-20 absolute border-dashed border-2 ' + (onFocus ? 'border-slate-500 hover:cursor-move' : 'border-transparent')}
-      style={{top: position.y, left: position.x, userSelect: "none"}}
+      style={{top: position.y, left: position.x, userSelect: "none", width: theText.width, height: theText.height}}
       onClick={()=>toSetFocus(toolBar)} 
       onDoubleClick={() => setEdit(true)}
       onBlur={()=>setOnFocus(false)}

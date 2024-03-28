@@ -113,7 +113,7 @@ function placeText(e:React.MouseEvent<HTMLDivElement, MouseEvent>, map_y:React.R
     textInput.addEventListener('focusout', () => {
         const theText = textInput.value
         textInput.remove()
-        setTextBox([...textBox, {x, y, text: theText}])
+        setTextBox([...textBox, {x, y, text: theText, width: 200, height: 36}])
         setToolBar("default")
     })
 
