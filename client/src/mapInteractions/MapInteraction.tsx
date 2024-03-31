@@ -1,5 +1,6 @@
-import React, { useRef, useState } from 'react'
-import { TextBox, ToolBar } from '../Map'
+import React, { useEffect, useRef, useState } from 'react'
+import { TextBox, ToolBar, BoolObject } from '../Map'
+import andGate from '../assets/and_gate.svg'
 // if clicked and drag to scroll
 export function dragToScroll(e:React.MouseEvent<HTMLDivElement, MouseEvent>) {
     let drag = true
@@ -90,9 +91,15 @@ export function outerToolAction(e:React.MouseEvent<HTMLDivElement, MouseEvent>, 
     if (toolBar === "grab") {dragToScroll(e)}
 }
 
-export function toolAction(e:React.MouseEvent<HTMLDivElement, MouseEvent>, map_y:React.RefObject<HTMLElement>, toolBar:ToolBar, setToolBar: (a:ToolBar)=>void, textBox: TextBox[], setTextBox: (a:TextBox[])=>void) {
+export function toolAction(e:React.MouseEvent<HTMLDivElement, MouseEvent>, map_y:React.RefObject<HTMLElement>,
+    toolBar:ToolBar, setToolBar: (a:ToolBar)=>void, textBox: TextBox[], setTextBox: (a:TextBox[])=>void,
+    boolObjects: BoolObject[], setBoolObjects: (a:BoolObject[])=>void) {
     if (toolBar === 'default') {dragToSelect(e, map_y)}
     else if (toolBar === "cell") {placeText(e, map_y, setToolBar, textBox, setTextBox)}
+    else if (toolBar === "andGate") {
+        console.log('see') 
+        boolPlacement(e, boolObjects, setBoolObjects)}
+    console.log(toolBar)
 }
 
 function placeText(e:React.MouseEvent<HTMLDivElement, MouseEvent>, map_y:React.RefObject<HTMLElement>, setToolBar:(a:ToolBar)=>void, textBox: TextBox[], setTextBox: (a:TextBox[])=>void) {
@@ -120,4 +127,47 @@ function placeText(e:React.MouseEvent<HTMLDivElement, MouseEvent>, map_y:React.R
     // set curor to a text icon while the input box is editable
     setToolBar("text")
 
+}
+
+export function BoolElement({boolObject}:{boolObject:BoolObject}) {
+
+    return (
+        <div className='z-20 absolute' style={{top: boolObject.y, left: boolObject.x}}>
+            <img src={andGate} width='102.2px' />
+        </div>
+    )
+}
+
+export function ObjectPlacement() {
+    const [x, setX] = useState<number>(0)
+    const [y, setY] = useState<number>(0)
+
+    const objectPlacement = (e:MouseEvent) => {
+        setX(10*Math.floor((e.pageX - 25)/10))
+        setY(10*Math.floor((e.pageY - 35)/10))
+    }
+
+    useEffect( () => {
+        document.addEventListener('mousemove', objectPlacement)
+        console.log('beep')
+
+        return () => {
+            document.removeEventListener('mousemove', objectPlacement)
+        }
+    }, [])
+
+    return (
+        <div className='z-20 absolute' style={{top: y, left: x}}>
+            <img src={andGate} width='102.2px' />
+        </div>
+    )
+}
+
+export function boolPlacement(e:React.MouseEvent<HTMLDivElement, MouseEvent>, boolObjects:BoolObject[], setBoolObjects:(a:BoolObject[])=>void){
+    const x = 10*Math.floor((e.pageX - 25)/10)
+    const y = 10*Math.floor((e.pageY - 35)/10)
+    
+    // push object to list to be printed
+    boolObjects.push({x:x, y:y, object: 'AndGate'})
+    setBoolObjects(boolObjects)
 }
