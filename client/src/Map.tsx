@@ -3,13 +3,12 @@ import { collisionHandler } from './collider.tsx'
 import { graphTimer, mapHandler, Spawn, SpawnAsset, spawnHandler} from './Auxiliary.tsx'
 import PhysicsObj from './physicsObj/PhysicsObj.tsx'
 import { launchMissile } from './physicsObj/Interaction.tsx'
-import { ObjectPlacement, outerToolAction, toolAction } from './mapInteractions/MapInteraction.tsx'
+import { outerToolAction, toolAction } from './mapInteractions/MapInteraction.tsx'
 import cursorPointer from './assets/cursor-pointer.svg'
 import cursorGrab from './assets/cursor-grab.svg'
 import andGate from './assets/and_gate.svg'
-import nandGate from './assets/nand_gate.svg'
 import { PlaceTexts } from './text/PlacementTexts.tsx'
-import { BoolElement } from './mapInteractions/MapInteraction.tsx'
+import { ObjectPlacement, BoolElement } from './mapInteractions/BoolObject.tsx'
 
 interface ContextProvider {
   masterWidth: number,
@@ -101,7 +100,7 @@ export function Map() { // 480p resolution
               ))}
 
 
-            <div className="fixed z-10 select-none bg-white border-2 border-slate-300 rounded-md mt-3 flex flex-col" style={{left: '20px', top: '0px'}}>
+            <div className="fixed z-30 select-none bg-white border-2 border-slate-300 rounded-md mt-3 flex flex-col" style={{left: '20px', top: '0px'}}>
                 <div className='py-2 px-1 m-1 rounded-sm cursor-pointer hover:bg-orange-100' onClick={()=> setToolBar('default')}> <img src={cursorPointer} width="25px" /> </div>
                 <div className='py-2 px-1 m-1 rounded-sm cursor-pointer hover:bg-orange-100' onClick={() => setToolBar('grab')}> <img src={cursorGrab} width="25px" /> </div>
                 <div className='border border-b-1 m-2'></div>
